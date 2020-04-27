@@ -1,0 +1,26 @@
+name: 'bundle-size'
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    env:
+      CI_JOB_NUMBER: 1
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+      - uses: actions/checkout@v2
+      # - uses: actions/setup-node@v1
+      - run: yarn && yarn build && echo "::set-output name=bundle_size::$(node bundle-size.js)"
+        working-directory: packages/webapp
+        id: test
+      - run: echo '${{ steps.test.outputs.bundle_size }}.'
