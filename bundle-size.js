@@ -33,9 +33,11 @@ fs.readdir('build/static/js', async (err, files) => {
     );
     fs.readFile('baseline.json', (err, data) => {
       if (!err) {
-        // const baseline = JSON.parse(data);
+        const baseline = JSON.parse(data);
         Object.keys(fileSizes).forEach(file => {
-          console.log(file, fileSizes)
+          if (fileSizes[file] === baseline[file]) {
+            console.log(file, baseline[file])
+          }
         });
       }
       console.log(err, "ERROR")
