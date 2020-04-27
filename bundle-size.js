@@ -1,5 +1,58 @@
 let { constants, createBrotliCompress } = require('zlib');
 let fs = require('fs');
+let table = require('markdown-table');
+
+const RESULTS_HEADER = [
+  "Chunk",
+  "Size"
+];
+
+const formatChange = (base, current) => {
+  if (!current) {
+    return "-100%";
+  }
+
+  const value = ((current - base) / current) * 100;
+  const formatted =
+    (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
+
+  if (value > 0) {
+    return `+${formatted}%`;
+  }
+
+  if (value === 0) {
+    return `${formatted}%`;
+  }
+
+  return `${formatted}%`;
+}
+
+const formatLine = (value, change) => {
+  return `${value} (${change})`;
+}
+
+const formatSizeResult = (name, base, current) => {
+  return [
+    name,
+    formatLine(
+      String(current),
+      formatChange(base, current)
+    )
+  ];
+}
+
+const formatResults = (base, current) => {
+  const files = [...new Set([...Object.keys(base), ...Object.keys(current)])]
+  const header = RESULTS_HEADER
+  const fields = files
+  .filter((name) => base[name] !== current[name])
+  .map((file) => {
+    return formatSizeResult(file, base[file] || 0, current[file] || 0);
+  });
+
+  return [header, ...fields];
+}
+
 function brotliSize(path) {
   return new Promise((resolve, reject) => {
     let size = 0;
@@ -34,14 +87,13 @@ fs.readdir('build/static/js', async (err, files) => {
     fs.readFile('baseline.json', (err, data) => {
       if (!err) {
         const baseline = JSON.parse(data);
-        Object.keys(fileSizes).forEach(file => {
-          if (fileSizes[file] === baseline[file]) {
-            console.log(file, baseline[file])
-          }
-        });
+        const body = [
+          'Size-limit report',
+          table(formatResults(baseline, fileSizes))
+        ].join("\r\n");
+        console.log(body)
       }
-      console.log(err, "ERROR")
     });
-    console.log(JSON.stringify(fileSizes));
+    // console.log(JSON.stringify(fileSizes));
   }
 });
