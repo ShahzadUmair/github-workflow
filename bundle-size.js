@@ -94,6 +94,6 @@ fs.readdir('build/static/js', async (err, files) => {
         console.log(body)
       }
     });
-    // console.log(JSON.stringify(fileSizes));
+    console.log(JSON.stringify(fileSizes));
   }
 });
