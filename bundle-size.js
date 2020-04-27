@@ -39,7 +39,9 @@ fs.readdir('build/static/js', async (err, files) => {
           }
         });
       }
+      console.log(err, "Error")
     });
     console.log(JSON.stringify(fileSizes));
   }
+  console.log(err, "Error Outer")
 });
