@@ -14,5 +14,5 @@ jobs:
       CI_JOB_NUMBER: 1
     steps:
       - uses: actions/checkout@v2
-      # - uses: actions/setup-node@v1
-      - run: yarn && yarn build && echo "Done" && node bundle-size.js && echo "Done Again"
+      - run: yarn && yarn build && node bundle-size.js > baseline.json
+      - run: node bundle-size.js
