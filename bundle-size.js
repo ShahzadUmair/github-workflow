@@ -1,4 +1,4 @@
-const { context, GitHub } = require("@actions/github");
+let { context, GitHub } = require("@actions/github");
 let { constants, createBrotliCompress } = require('zlib');
 let fs = require('fs');
 let table = require('markdown-table');
@@ -89,17 +89,17 @@ fs.readdir('build/static/js', async (err, files) => {
     );
     fs.readFile('baseline.json', async (err, data) => {
       if (!err) {
-        const baseline = JSON.parse(data)
-        const formattedResults = formatResults(baseline, fileSizes)
-        const body = [
-          TABLE_HEADING,
-          table(formattedResults)
-        ].join("\r\n")
-
-        if (context.payload.pull_request) {
+        const pullRequestContext = context.payload.pull_request
+        if (pullRequestContext) {
+          const baseline = JSON.parse(data)
+          const body = [
+            `${TABLE_HEADING} for ${pullRequestContext.head.sha}`,
+            table(formatResults(baseline, fileSizes))
+          ].join("\r\n")
           const { GITHUB_TOKEN } = process.env;
           const octokit = new GitHub(GITHUB_TOKEN);
-          const pullNumber = context.payload.pull_request.number;
+          const pullNumber = pullRequestContext.number;
+
           const existingCommentId = await getExistingCommentId(octokit, pullNumber)
           
           if (existingCommentId) {
