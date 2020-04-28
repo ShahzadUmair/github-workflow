@@ -20,4 +20,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
       - uses: actions/checkout@v2
-      - run: yarn && yarn build && node bundle-size.js
+      - run: echo ${github.sha}
+      # - if: github.event_name == 'push'
+      #   run: yarn && yarn build && node bundle-size.js
