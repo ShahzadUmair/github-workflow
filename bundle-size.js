@@ -1,4 +1,4 @@
-const { setFailed } = require("@actions/core");
+// const { setFailed } = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
 let { constants, createBrotliCompress } = require('zlib');
 let fs = require('fs');
@@ -88,9 +88,9 @@ fs.readdir('build/static/js', async (err, files) => {
     );
     fs.readFile('baseline.json', (err, data) => {
       if (!err) {
-        if (context.payload.pull_request === null) {
-          return setFailed("No pull request found.");
-        }
+        // if (context.payload.pull_request === null) {
+        //   return setFailed("No pull request found.");
+        // }
         const baseline = JSON.parse(data);
         const body = [
           'Size-limit report',
