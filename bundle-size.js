@@ -1,3 +1,5 @@
+const { setFailed } = require("@actions/core");
+const { context, GitHub } = require("@actions/github");
 let { constants, createBrotliCompress } = require('zlib');
 let fs = require('fs');
 let table = require('markdown-table');
@@ -86,12 +88,16 @@ fs.readdir('build/static/js', async (err, files) => {
     );
     fs.readFile('baseline.json', (err, data) => {
       if (!err) {
+        if (context.payload.pull_request === null) {
+          return setFailed("No pull request found.");
+        }
         const baseline = JSON.parse(data);
         const body = [
           'Size-limit report',
           table(formatResults(baseline, fileSizes))
         ].join("\r\n");
-        console.log(body)
+        const { GITHUB_TOKEN } = process.env;
+        console.log(GITHUB_TOKEN)
       }
     });
     console.log(JSON.stringify(fileSizes));
