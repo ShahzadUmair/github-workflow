@@ -99,8 +99,8 @@ fs.readdir('build/static/js', async (err, files) => {
           const { GITHUB_TOKEN } = process.env;
           const octokit = new GitHub(GITHUB_TOKEN);
           const pullNumber = context.payload.pull_request.number;
-          console.log(context.payload.pull_request)
           const existingCommentId = await getExistingCommentId(octokit, pullNumber)
+          
           if (existingCommentId) {
             octokit.issues.updateComment({
               ...context.repo,
