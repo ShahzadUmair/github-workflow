@@ -97,6 +97,7 @@ fs.readdir('build/static/js', async (err, files) => {
         ].join("\r\n");
         const { GITHUB_TOKEN } = process.env;
         const octokit = new GitHub(GITHUB_TOKEN);
+        console.log(context)
         const prNumber = context.payload.pull_request.number;
         octokit.pulls.createReview({
           ...context.repo,
