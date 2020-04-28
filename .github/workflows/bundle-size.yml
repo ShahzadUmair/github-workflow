@@ -13,6 +13,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CI_JOB_NUMBER: 1
+      GITHUB_CONTEXT: ${{ toJson(github) }}
     steps:
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -20,5 +21,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
       - uses: actions/checkout@v2
+      - if: github.event_name == 'pull_request'
+        run: echo "$GITHUB_CONTEXT"
       - if: github.event_name == 'push'
         run: yarn && yarn build && node bundle-size.js > baseline.json && aws s3 cp baseline.json s3://educative-bundle-sizes/${{github.sha}}.json
