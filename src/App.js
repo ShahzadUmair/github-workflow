@@ -16,8 +16,11 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React - create-react-app
+          Learn React
         </a>
+        <p>
+          Lorem ipsum
+        </p>
       </header>
     </div>
   );

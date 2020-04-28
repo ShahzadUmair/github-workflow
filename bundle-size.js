@@ -10,22 +10,12 @@ const RESULTS_HEADER = [
 const TABLE_HEADING  = '## Size-limit report';
 
 const formatChange = (base, current) => {
-  if (!current) {
-    return "-100%";
-  }
+  if (!current) return "-100%";
 
   const value = ((current - base) / current) * 100;
-  const formatted =
-    (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
+  const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
 
-  if (value > 0) {
-    return `+${formatted}%`;
-  }
-
-  if (value === 0) {
-    return `${formatted}%`;
-  }
-
+  if (value > 0) return `+${formatted}%`;
   return `${formatted}%`;
 }
 
@@ -33,15 +23,10 @@ const formatLine = (value, change) => {
   return `${value} (${change})`;
 }
 
-const formatSizeResult = (name, base, current) => {
-  return [
-    name,
-    formatLine(
-      String(current),
-      formatChange(base, current)
-    )
-  ];
-}
+const formatSizeResult = (name, base, current) => [
+  name,
+  formatLine(String(current), formatChange(base, current))
+];
 
 const formatResults = (base, current) => {
   const files = [...new Set([...Object.keys(base), ...Object.keys(current)])]
@@ -87,34 +72,32 @@ fs.readdir('build/static/js', async (err, files) => {
         }
       }),
     );
-    fs.readFile('baseline.json', async (err, data) => {
-      if (!err) {
-        const pullRequestContext = context.payload.pull_request
-        if (pullRequestContext) {
-          const baseline = JSON.parse(data)
-          const body = [
-            `${TABLE_HEADING} for ${pullRequestContext.head.sha}`,
-            table(formatResults(baseline, fileSizes))
-          ].join("\r\n")
-          const { GITHUB_TOKEN } = process.env;
-          const octokit = new GitHub(GITHUB_TOKEN);
-          const pullNumber = pullRequestContext.number;
 
-          const existingCommentId = await getExistingCommentId(octokit, pullNumber)
-          
-          if (existingCommentId) {
-            octokit.issues.updateComment({
-              ...context.repo,
-              comment_id: existingCommentId,
-              body,
-            });
-          } else {
-            octokit.issues.createComment({
-              ...context.repo,
-              issue_number: pullNumber,
-              body
-            });
-          }
+    const pullRequestContext = context.payload.pull_request
+    fs.readFile('baseline.json', async (err, data) => {
+      if (!err && pullRequestContext) {
+        const baseline = JSON.parse(data)
+        const { GITHUB_TOKEN } = process.env;
+        const octokit = new GitHub(GITHUB_TOKEN);
+        const pullNumber = pullRequestContext.number;
+        const body = [
+          `${TABLE_HEADING} for ${pullRequestContext.head.sha}`,
+          table(formatResults(baseline, fileSizes))
+        ].join("\r\n")
+
+        const existingCommentId = await getExistingCommentId(octokit, pullNumber)
+        if (existingCommentId) {
+          octokit.issues.updateComment({
+            ...context.repo,
+            comment_id: existingCommentId,
+            body,
+          });
+        } else {
+          octokit.issues.createComment({
+            ...context.repo,
+            issue_number: pullNumber,
+            body
+          });
         }
       }
     });
