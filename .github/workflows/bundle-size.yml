@@ -22,6 +22,6 @@ jobs:
           aws-region: us-east-2
       - uses: actions/checkout@v2
       - if: github.event_name == 'pull_request'
-        run: echo "$GITHUB_CONTEXT"
+        run: aws s3 cp s3://educative-bundle-sizes/${{github.event.pull_request.base.sha}}.json baseline.json && yarn && yarn build && node bundle-size.js
       - if: github.event_name == 'push'
         run: yarn && yarn build && node bundle-size.js > baseline.json && aws s3 cp baseline.json s3://educative-bundle-sizes/${{github.sha}}.json
