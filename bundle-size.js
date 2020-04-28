@@ -1,4 +1,4 @@
-const { context, GitHub } = require("@actions/github");
+let { context, GitHub } = require("@actions/github");
 let { constants, createBrotliCompress } = require('zlib');
 let fs = require('fs');
 let table = require('markdown-table');
