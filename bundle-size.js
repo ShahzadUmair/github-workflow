@@ -99,19 +99,18 @@ fs.readdir('build/static/js', async (err, files) => {
           const { GITHUB_TOKEN } = process.env;
           const octokit = new GitHub(GITHUB_TOKEN);
           const pullNumber = context.payload.pull_request.number;
-          const existingReviewId = await getExistingReviewId(octokit, pullNumber)
-          if (existingReviewId) {
-            octokit.pulls.updateReview({
+          console.log(context.payload.pull_request)
+          const existingCommentId = await getExistingCommentId(octokit, pullNumber)
+          if (existingCommentId) {
+            octokit.issues.updateComment({
               ...context.repo,
-              pull_number: pullNumber,
-              review_id: existingReviewId,
+              comment_id: existingCommentId,
               body,
             });
           } else {
-            octokit.pulls.createReview({
+            octokit.issues.createComment({
               ...context.repo,
-              pull_number: pullNumber,
-              event: "COMMENT",
+              issue_number: pullNumber,
               body
             });
           }
@@ -122,14 +121,15 @@ fs.readdir('build/static/js', async (err, files) => {
   }
 });
 
-const getExistingReviewId = async (octokit, pull_number) => {
-  const existingReviews = (await octokit.pulls.listReviews({
+const getExistingCommentId = async (octokit, pull_number) => {
+  const existingComments = (await octokit.issues.listComments({
     ...context.repo,
-    pull_number,
-  })).data.filter(review =>
+    issue_number: pull_number,
+  })).data
+  .filter(review =>
     review.user.login === "github-actions[bot]" &&
     (review.body === "No change in bundle size" ||
     review.body.startsWith(TABLE_HEADING)))
-  
-  return existingReviews.length > 0 ? existingReviews[0].id : null
+
+  return existingComments.length > 0 ? existingComments[0].id : null
 }
