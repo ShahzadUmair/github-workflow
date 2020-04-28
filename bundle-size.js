@@ -52,6 +52,7 @@ const formatResults = (base, current) => {
     return formatSizeResult(file, base[file] || 0, current[file] || 0);
   });
 
+  if (!fields.length) return [["No change in bundle size"]]
   return [header, ...fields];
 }
 
@@ -90,11 +91,11 @@ fs.readdir('build/static/js', async (err, files) => {
       if (!err) {
         const baseline = JSON.parse(data)
         const formattedResults = formatResults(baseline, fileSizes)
-        const body = formattedResults.length > 1 ? [
+        const body = [
           TABLE_HEADING,
           table(formattedResults)
-        ].join("\r\n") : "No change in bundle size"
-        
+        ].join("\r\n")
+
         if (context.payload.pull_request) {
           const { GITHUB_TOKEN } = process.env;
           const octokit = new GitHub(GITHUB_TOKEN);
@@ -128,8 +129,7 @@ const getExistingCommentId = async (octokit, pull_number) => {
   })).data
   .filter(comment =>
     comment.user.login === "github-actions[bot]" &&
-    (comment.body === "No change in bundle size" ||
-    comment.body.startsWith(TABLE_HEADING)))
+    (comment.body.startsWith(TABLE_HEADING)))
 
   return existingComments.length > 0 ? existingComments[0].id : null
 }
