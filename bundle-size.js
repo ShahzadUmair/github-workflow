@@ -1,5 +1,4 @@
-// const { setFailed } = require("@actions/core");
-// const { context, GitHub } = require("@actions/github");
+const { context, GitHub } = require("@actions/github");
 let { constants, createBrotliCompress } = require('zlib');
 let fs = require('fs');
 let table = require('markdown-table');
@@ -97,7 +96,14 @@ fs.readdir('build/static/js', async (err, files) => {
           table(formatResults(baseline, fileSizes))
         ].join("\r\n");
         const { GITHUB_TOKEN } = process.env;
-        console.log(GITHUB_TOKEN)
+        const octokit = new GitHub(GITHUB_TOKEN);
+        const prNumber = context.payload.pull_request.number;
+        octokit.pulls.createReview({
+          ...context.repo,
+          pull_number: prNumber,
+          event: "COMMENT",
+          body
+        });
       }
     });
     console.log(JSON.stringify(fileSizes));
