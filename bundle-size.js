@@ -46,7 +46,7 @@ const formatResults = (base, current) => {
   const files = [...new Set([...Object.keys(base), ...Object.keys(current)])]
   const header = RESULTS_HEADER
   const fields = files
-  .filter((name) => base[name] !== current[name])
+  // .filter((name) => base[name] !== current[name])
   .map((file) => {
     return formatSizeResult(file, base[file] || 0, current[file] + 100 || 0);
   });
