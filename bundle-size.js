@@ -52,6 +52,7 @@ const formatResults = (base, current) => {
     return formatSizeResult(file, base[file] || 0, current[file] || 0);
   });
 
+  if (!fields.length) return [["No change in bundle size"]]
   return [header, ...fields];
 }
 
@@ -90,28 +91,27 @@ fs.readdir('build/static/js', async (err, files) => {
       if (!err) {
         const baseline = JSON.parse(data)
         const formattedResults = formatResults(baseline, fileSizes)
-        const body = formattedResults.length > 1 ? [
+        const body = [
           TABLE_HEADING,
           table(formattedResults)
-        ].join("\r\n") : "No change in bundle size"
-        
+        ].join("\r\n")
+
         if (context.payload.pull_request) {
           const { GITHUB_TOKEN } = process.env;
           const octokit = new GitHub(GITHUB_TOKEN);
           const pullNumber = context.payload.pull_request.number;
-          const existingReviewId = await getExistingReviewId(octokit, pullNumber)
-          if (existingReviewId) {
-            octokit.pulls.updateReview({
+          const existingCommentId = await getExistingCommentId(octokit, pullNumber)
+          
+          if (existingCommentId) {
+            octokit.issues.updateComment({
               ...context.repo,
-              pull_number: pullNumber,
-              review_id: existingReviewId,
+              comment_id: existingCommentId,
               body,
             });
           } else {
-            octokit.pulls.createReview({
+            octokit.issues.createComment({
               ...context.repo,
-              pull_number: pullNumber,
-              event: "COMMENT",
+              issue_number: pullNumber,
               body
             });
           }
@@ -122,14 +122,14 @@ fs.readdir('build/static/js', async (err, files) => {
   }
 });
 
-const getExistingReviewId = async (octokit, pull_number) => {
-  const existingReviews = (await octokit.pulls.listReviews({
+const getExistingCommentId = async (octokit, pull_number) => {
+  const existingComments = (await octokit.issues.listComments({
     ...context.repo,
-    pull_number,
-  })).data.filter(review =>
-    review.user.login === "github-actions[bot]" &&
-    (review.body === "No change in bundle size" ||
-    review.body.startsWith(TABLE_HEADING)))
-  
-  return existingReviews.length > 0 ? existingReviews[0].id : null
+    issue_number: pull_number,
+  })).data
+  .filter(comment =>
+    comment.user.login === "github-actions[bot]" &&
+    (comment.body.startsWith(TABLE_HEADING)))
+
+  return existingComments.length > 0 ? existingComments[0].id : null
 }
