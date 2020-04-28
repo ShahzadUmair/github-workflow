@@ -46,9 +46,9 @@ const formatResults = (base, current) => {
   const files = [...new Set([...Object.keys(base), ...Object.keys(current)])]
   const header = RESULTS_HEADER
   const fields = files
-  // .filter((name) => base[name] !== current[name])
+  .filter((name) => base[name] !== current[name])
   .map((file) => {
-    return formatSizeResult(file, base[file] || 0, current[file] + 100 || 0);
+    return formatSizeResult(file, base[file] || 0, current[file] || 0);
   });
 
   return [header, ...fields];
@@ -85,26 +85,50 @@ fs.readdir('build/static/js', async (err, files) => {
         }
       }),
     );
-    fs.readFile('baseline.json', (err, data) => {
+    fs.readFile('baseline.json', async (err, data) => {
       if (!err) {
         const baseline = JSON.parse(data)
         const formattedResults = formatResults(baseline, fileSizes)
         const body = formattedResults.length > 1 ? [
-          'Size-limit report',
+          '## Size-limit report',
           table(formattedResults)
         ].join("\r\n") : "No change in bundle size"
-        const { GITHUB_TOKEN } = process.env;
-        const octokit = new GitHub(GITHUB_TOKEN);
+        
         if (context.payload.pull_request) {
-          octokit.pulls.createReview({
-            ...context.repo,
-            pull_number: context.payload.pull_request.number,
-            event: "COMMENT",
-            body
-          });
+          const { GITHUB_TOKEN } = process.env;
+          const octokit = new GitHub(GITHUB_TOKEN);
+          const pullNumber = context.payload.pull_request.number;
+          const existingReviewId = await getExistingReviewId(octokit, pullNumber)
+          if (existingReviewId) {
+            octokit.pulls.updateReview({
+              ...context.repo,
+              pull_number: pullNumber,
+              review_id: existingReviewId,
+              body,
+            });
+          } else {
+            octokit.pulls.createReview({
+              ...context.repo,
+              pull_number: pullNumber,
+              event: "COMMENT",
+              body
+            });
+          }
         }
       }
     });
     console.log(JSON.stringify(fileSizes));
   }
 });
+
+const getExistingReviewId = async (octokit, pull_number) => {
+  const existingReviews = (await octokit.pulls.listReviews({
+    ...context.repo,
+    pull_number,
+  })).data.filter(review =>
+    review.user.login === "github-actions[bot]" &&
+    (review.body === "No change in bundle size" ||
+    review.body.startsWith("Size-limit report")))
+  
+  return existingReviews.length > 0 ? existingReviews[0].id : null
+}
