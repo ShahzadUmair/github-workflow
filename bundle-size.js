@@ -92,10 +92,9 @@ fs.readdir('build/static/js', async (err, files) => {
         const pullRequestContext = context.payload.pull_request
         if (pullRequestContext) {
           const baseline = JSON.parse(data)
-          const formattedResults = formatResults(baseline, fileSizes)
           const body = [
             `${TABLE_HEADING} for ${pullRequestContext.head.sha}`,
-            table(formattedResults)
+            table(formatResults(baseline, fileSizes))
           ].join("\r\n")
           const { GITHUB_TOKEN } = process.env;
           const octokit = new GitHub(GITHUB_TOKEN);
