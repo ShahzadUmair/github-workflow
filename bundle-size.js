@@ -94,7 +94,7 @@ fs.readdir('build/static/js', async (err, files) => {
           const baseline = JSON.parse(data)
           const formattedResults = formatResults(baseline, fileSizes)
           const body = [
-            `${TABLE_HEADING} ${pullRequestContext.head.sha}`,
+            `${TABLE_HEADING} for ${pullRequestContext.head.sha}`,
             table(formattedResults)
           ].join("\r\n")
           const { GITHUB_TOKEN } = process.env;
