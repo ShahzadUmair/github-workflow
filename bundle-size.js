@@ -126,10 +126,10 @@ const getExistingCommentId = async (octokit, pull_number) => {
     ...context.repo,
     issue_number: pull_number,
   })).data
-  .filter(review =>
-    review.user.login === "github-actions[bot]" &&
-    (review.body === "No change in bundle size" ||
-    review.body.startsWith(TABLE_HEADING)))
+  .filter(comment =>
+    comment.user.login === "github-actions[bot]" &&
+    (comment.body === "No change in bundle size" ||
+    comment.body.startsWith(TABLE_HEADING)))
 
   return existingComments.length > 0 ? existingComments[0].id : null
 }
