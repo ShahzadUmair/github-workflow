@@ -87,12 +87,12 @@ fs.readdir('build/static/js', async (err, files) => {
     );
     fs.readFile('baseline.json', (err, data) => {
       if (!err) {
-        const baseline = JSON.parse(data);
-        const body = [
+        const baseline = JSON.parse(data)
+        const formattedResults = formatResults(baseline, fileSizes)
+        const body = formattedResults.length > 1 ? [
           'Size-limit report',
-          table(formatResults(baseline, fileSizes))
-        ].join("\r\n");
-
+          table(formattedResults)
+        ].join("\r\n") : "No change in bundle size"
         const { GITHUB_TOKEN } = process.env;
         const octokit = new GitHub(GITHUB_TOKEN);
         if (context.payload.pull_request) {
@@ -103,7 +103,6 @@ fs.readdir('build/static/js', async (err, files) => {
             body
           });
         }
-
       }
     });
     console.log(JSON.stringify(fileSizes));
