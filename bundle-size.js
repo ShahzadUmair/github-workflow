@@ -48,7 +48,7 @@ const formatResults = (base, current) => {
   const fields = files
   .filter((name) => base[name] !== current[name])
   .map((file) => {
-    return formatSizeResult(file, base[file] || 0, current[file] || 0);
+    return formatSizeResult(file, base[file] || 0, current[file] + 100 || 0);
   });
 
   return [header, ...fields];
@@ -92,6 +92,7 @@ fs.readdir('build/static/js', async (err, files) => {
           'Size-limit report',
           table(formatResults(baseline, fileSizes))
         ].join("\r\n");
+
         const { GITHUB_TOKEN } = process.env;
         const octokit = new GitHub(GITHUB_TOKEN);
         if (context.payload.pull_request) {
@@ -102,6 +103,7 @@ fs.readdir('build/static/js', async (err, files) => {
             body
           });
         }
+
       }
     });
     console.log(JSON.stringify(fileSizes));
