@@ -7,6 +7,7 @@ const RESULTS_HEADER = [
   "Chunk",
   "Size"
 ];
+const TABLE_HEADING  = '## Size-limit report';
 
 const formatChange = (base, current) => {
   if (!current) {
@@ -90,7 +91,7 @@ fs.readdir('build/static/js', async (err, files) => {
         const baseline = JSON.parse(data)
         const formattedResults = formatResults(baseline, fileSizes)
         const body = formattedResults.length > 1 ? [
-          '## Size-limit report',
+          TABLE_HEADING,
           table(formattedResults)
         ].join("\r\n") : "No change in bundle size"
         
@@ -128,7 +129,7 @@ const getExistingReviewId = async (octokit, pull_number) => {
   })).data.filter(review =>
     review.user.login === "github-actions[bot]" &&
     (review.body === "No change in bundle size" ||
-    review.body.startsWith("Size-limit report")))
+    review.body.startsWith(TABLE_HEADING)))
   
   return existingReviews.length > 0 ? existingReviews[0].id : null
 }
