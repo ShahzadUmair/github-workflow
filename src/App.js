@@ -19,7 +19,7 @@ function App() {
           Learn React
         </a>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+          Lorem ipsum
         </p>
       </header>
     </div>
