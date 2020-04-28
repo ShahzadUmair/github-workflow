@@ -87,9 +87,6 @@ fs.readdir('build/static/js', async (err, files) => {
     );
     fs.readFile('baseline.json', (err, data) => {
       if (!err) {
-        // if (context.payload.pull_request === null) {
-        //   return setFailed("No pull request found.");
-        // }
         const baseline = JSON.parse(data);
         const body = [
           'Size-limit report',
@@ -97,11 +94,10 @@ fs.readdir('build/static/js', async (err, files) => {
         ].join("\r\n");
         const { GITHUB_TOKEN } = process.env;
         const octokit = new GitHub(GITHUB_TOKEN);
-        console.log(context)
-        const prNumber = context.payload.pull_request.number;
+        console.log(context, "Context")
         octokit.pulls.createReview({
           ...context.repo,
-          pull_number: prNumber,
+          pull_number: context.payload.pull_request.number,
           event: "COMMENT",
           body
         });
