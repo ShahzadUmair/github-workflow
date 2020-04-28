@@ -13,7 +13,6 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CI_JOB_NUMBER: 1
-      GITHUB_CONTEXT: ${{ toJson(github) }}
     steps:
       - uses: aws-actions/configure-aws-credentials@v1
         with:
