@@ -7,7 +7,7 @@ const RESULTS_HEADER = [
   "Chunk",
   "Size"
 ];
-const TABLE_HEADING  = '## Size-limit report';
+const TABLE_HEADING  = '## Bundle Size report';
 
 const formatChange = (base, current) => {
   if (!current) return "-100%";
