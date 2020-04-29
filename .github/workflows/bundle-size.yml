@@ -14,16 +14,16 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CI_JOB_NUMBER: 1
     steps:
-      - run: echo "${{ toJson(github) }}"
-      # - uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: us-east-2
-      # - uses: actions/checkout@v2
-      # - if: github.event_name == 'pull_request'
-      #   run: aws s3 cp s3://educative-bundle-sizes/${{github.event.pull_request.base.sha}}.json baseline.json && yarn && yarn build && node bundle-size.js
-      #   working-directory: packages/webapp
-      # - if: github.event_name == 'push'
-      #   run: yarn && yarn build && node bundle-size.js > baseline.json && aws s3 cp baseline.json s3://educative-bundle-sizes/${{github.sha}}.json
-      #   working-directory: packages/webapp
+      - run: echo "${{ github.event.head_commit }}"
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+      - uses: actions/checkout@v2
+      - if: github.event_name == 'pull_request'
+        run: aws s3 cp s3://educative-bundle-sizes/${{github.event.pull_request.base.sha}}.json baseline.json && yarn && yarn build && node bundle-size.js
+        working-directory: src/../
+      - if: github.event_name == 'push'
+        run: yarn && yarn build && node bundle-size.js > baseline.json && aws s3 cp baseline.json s3://educative-bundle-sizes/${{github.sha}}.json
+        working-directory: src/../
