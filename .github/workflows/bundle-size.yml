@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-      - run: git log -n 4
-      # - name: 'commit message'
+      - name: 'commit log'
+        run: git log -n 4
       #   id: 'commit_message'
       #   run: echo "::set-output name=msg::$(git log --format=%B -n 1 ${{ github.sha }})"
       # - run: echo ${{github.sha}} ${{github.event.after}}
