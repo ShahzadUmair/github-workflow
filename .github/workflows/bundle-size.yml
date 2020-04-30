@@ -22,7 +22,7 @@ jobs:
       - run: echo ${{ steps.commit_message.outputs.msg }}
       - name: 'Fail on skip ci'
         if: contains(steps.commit_message.outputs.msg, 'skip ci')
-        run: exit 2
+        run: exit 1
       # - uses: aws-actions/configure-aws-credentials@v1
       #   with:
       #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
