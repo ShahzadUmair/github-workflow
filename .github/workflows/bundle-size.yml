@@ -17,14 +17,12 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - name: 'commit log'
-        run: git log -n 4
-      - run: echo ${{ github.head_ref }}
-      #   id: 'commit_message'
-      #   run: echo "::set-output name=msg::$(git log --format=%B -n 1 ${{ github.sha }})"
-      # - run: echo ${{github.sha}} ${{github.event.after}}
-      # - name: 'Fail on skip ci'
-      #   if: contains(steps.commit_message.outputs.msg, 'skip ci')
-      #   run: exit 1
+        id: 'commit_message'
+        run: echo "::set-output name=msg::$(git log -1 --pretty=%B)"
+      - run: echo ${{ steps.commit_message.outputs.msg }}
+      - name: 'Fail on skip ci'
+        if: contains(steps.commit_message.outputs.msg, 'skip ci')
+        run: exit 1
       # - uses: aws-actions/configure-aws-credentials@v1
       #   with:
       #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
