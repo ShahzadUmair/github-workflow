@@ -31,5 +31,5 @@ jobs:
         run: aws s3 cp s3://educative-bundle-sizes/${{github.event.pull_request.base.sha}}.json baseline.json && yarn && yarn build && node bundle-size.js
         working-directory: src/../
       - if: github.event_name == 'push'
-        run: yarn && yarn build && node bundle-size.js > baseline.json && aws s3 cp baseline.json s3://educative-bundle-sizes/${{github.sha}}.json
+        run: echo "Started" && yarn && yarn build && node bundle-size.js > baseline.json && aws s3 cp baseline.json s3://educative-bundle-sizes/${{github.sha}}.json
         working-directory: src/../
